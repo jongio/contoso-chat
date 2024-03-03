@@ -9,6 +9,8 @@ endpointName="contoso-chat-$RANDOM"
 # create a random hash for the deployment name
 deploymentName="contoso-chat-$RANDOM"
 
+az ml environment create --file deployment/docker/environment.yml --resource-group $resourceGroupName --workspace-name $mlProjectName --version 1
+
 echo "{\"subscription_id\": \"$subscriptionId\", \"resource_group\": \"$resourceGroupName\", \"workspace_name\": \"$mlProjectName\"}" > config.json
 $(cat principal.txt) --secret-permissions get list
 
