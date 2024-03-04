@@ -20,17 +20,18 @@ param containerRegistryName string = ''
 param cosmosAccountName string = ''
 param keyVaultName string = ''
 param resourceGroupName string = ''
-param searchLocation string = 'eastus'
+param searchLocation string = ''
 param searchServiceName string = ''
 param storageServiceName string = ''
 
 param accountsContosoChatSfAIServicesName string = 'contoso-chat-sf-ai-aiservices'
-param workspaces_apws_contosochatsfai362802272292_name string = 'apws-contosochatsfai362802272292'
+param workspacesApwsContosoChatSfAi362802272292Name string = 'apws-contosochatsfai362802272292'
 
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
 
 var openaiSubdomain = '${accountsContosoChatSfAIServicesName}${resourceToken}'
+var openaiEndpoint = 'https://${openaiSubdomain}.openai.azure.com/'
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 var tags = { 'azd-env-name': environmentName }
 
@@ -114,7 +115,7 @@ module cosmos 'core/database/cosmos/sql/cosmos-sql-db.bicep' = {
   name: 'cosmos'
   scope: rg
   params: {
-    accountName: !empty(cosmosAccountName) ? cosmosAccountName : '${environmentName}-cosmos-contoso-${resourceToken}'
+    accountName: !empty(cosmosAccountName) ? cosmosAccountName : 'cosmos-contoso-${resourceToken}'
     databaseName: 'contoso-outdoor'
     location: location
     tags: union(tags, {
@@ -152,7 +153,7 @@ module machinelearning 'app/ml.bicep' = {
     keyVaultId: keyvault.outputs.id
     appInsightId: monitoring.outputs.applicationInsightsId
     containerRegistryId: containerRegistry.outputs.id
-    openAIEndpoint: openai.outputs.endpoint
+    openAIEndpoint: openaiEndpoint
     openAIName: openai.outputs.name
     searchName: search.outputs.name
   }
@@ -162,7 +163,7 @@ module monitoring 'core/monitor/monitoring.bicep' = {
   name: 'monitoring'
   scope: rg
   params: {
-    logAnalyticsName: workspaces_apws_contosochatsfai362802272292_name
+    logAnalyticsName: workspacesApwsContosoChatSfAi362802272292Name
     applicationInsightsName: !empty(applicationInsightsName) ? applicationInsightsName : '${environmentName}-appi-contoso${resourceToken}'
     location: location
     tags: tags
@@ -347,12 +348,12 @@ module storage 'core/storage/storage-account.bicep' = {
 }
 
 // output the names of the resources
-output OPEN_AI_NAME string = openai.outputs.name
-output COSMOS_NAME string = cosmos.outputs.accountName
-output SEARCH_NAME string = search.outputs.name
-output ML_HUB_NAME string = machinelearning.outputs.ml_hub_name
-output ML_PROJECT_NAME string = machinelearning.outputs.ml_project_name
+output AZURE_OPENAI_NAME string = openai.outputs.name
+output AZURE_COSMOS_NAME string = cosmos.outputs.accountName
+output AZURE_SEARCH_NAME string = search.outputs.name
+output AZURE_ML_HUB_NAME string = machinelearning.outputs.ml_hub_name
+output AZURE_ML_PROJECT_NAME string = machinelearning.outputs.ml_project_name
 
-output OPEN_AI_ENDPOINT string = openai.outputs.endpoint
-output COSMOS_ENDPOINT string = cosmos.outputs.endpoint
-output SEARCH_ENDPOINT string = search.outputs.endpoint
+output AZURE_OPENAI_ENDPOINT string = openaiEndpoint
+output AZURE_COSMOS_ENDPOINT string = cosmos.outputs.endpoint
+output AZURE_SEARCH_ENDPOINT string = search.outputs.endpoint
