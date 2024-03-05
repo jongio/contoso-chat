@@ -37,7 +37,7 @@ var deployments = [
     }
     sku: {
       name: 'Standard'
-      capacity: 120
+      capacity: 20
     }
   }
   {
@@ -61,7 +61,7 @@ var deployments = [
     }
     sku: {
       name: 'Standard'
-      capacity: 120
+      capacity: 20
     }
   }
 ]
@@ -654,7 +654,35 @@ resource mlHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview'
       }
     }
   }
+
+  resource env 'environments' = {
+    name: 'promptflow-contoso-chat'
+    properties: {
+      properties: {}
+      tags: {}
+    }
+    resource version 'versions' = {
+      name: 'version'
+      properties: {
+        osType: 'Linux'
+        isAnonymous: false
+        image: 'mcr.microsoft.com/azureml/promptflow/promptflow-runtime-stable:latest'
+        condaFile: '''
+        name: pfenv
+          - conda-forge
+        dependencies:
+          - python=3.9
+          - pip
+            - promptflow
+            - promptflow-tools
+            - azure-cosmos
+            - azure-search-documents==11.4.0'
+        '''
+      }
+    }
+  }
 }
+
 
 // In ai.azure.com: Azure AI Project
 resource mlProject 'Microsoft.MachineLearningServices/workspaces@2023-10-01' = {
@@ -679,7 +707,6 @@ resource mlProject 'Microsoft.MachineLearningServices/workspaces@2023-10-01' = {
   }
 }
 
-
 module userAcrRolePush 'role.bicep' = {
   name: 'user-acr-role-push'
   params: {
@@ -694,6 +721,24 @@ module userAcrRolePull 'role.bicep' = {
   params: {
     principalId: principalId
     roleDefinitionId: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+    principalType: 'User'
+  }
+}
+
+module userRoleDataScientist 'role.bicep' = {
+  name: 'user-role-data-scientist'
+  params: {
+    principalId: principalId
+    roleDefinitionId: 'f6c7c914-8db3-469d-8ca1-694a8f32e121'
+    principalType: 'User'
+  }
+}
+
+module userRoleSecretsReader 'role.bicep' = {
+  name: 'user-role-secrets-reader'
+  params: {
+    principalId: principalId
+    roleDefinitionId: 'ea01e6af-a1c1-4350-9563-ad00f8c72ec5'
     principalType: 'User'
   }
 }
