@@ -1,17 +1,17 @@
 param appInsightId string
 param containerRegistryId string
-param contosoChatSfAIName string = 'contoso-chat-sf-ai'
+param contosoChatSfAiName string = 'contoso-chat-sf-ai'
 param contosoChatSfAiprojName string = 'contoso-chat-sf-aiproj'
 param keyVaultId string
 param location string
-param openAIEndpoint string
-param openAIName string
+param openAiEndpoint string
+param openAiName string
 param searchName string
 param storageAccountId string
 
 // In ai.azure.com: Azure AI Resource
-resource mlHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview' = {
-  name: contosoChatSfAIName
+resource workspace 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview' = {
+  name: contosoChatSfAiName
   location: location
   sku: {
     name: 'Basic'
@@ -22,7 +22,7 @@ resource mlHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview'
     type: 'SystemAssigned'
   }
   properties: {
-    friendlyName: contosoChatSfAIName
+    friendlyName: contosoChatSfAiName
     storageAccount: storageAccountId
     keyVault: keyVaultId
     applicationInsights: appInsightId
@@ -33,7 +33,7 @@ resource mlHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview'
     v1LegacyMode: false
     containerRegistry: containerRegistryId
     publicNetworkAccess: 'Enabled'
-    discoveryUrl: 'https://swedencentral.api.azureml.ms/discovery'
+    discoveryUrl: 'https://${location}.api.azureml.ms/discovery'
   }
 
   resource openaiDefaultEndpoint 'endpoints' = {
@@ -58,7 +58,7 @@ resource mlHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview'
     name: 'aoai-connection'
     properties: {
       category: 'AzureOpenAI'
-      target: openAIEndpoint
+      target: openAiEndpoint
       authType: 'ApiKey'
       metadata: {
           ApiVersion: '2023-07-01-preview'
@@ -85,7 +85,7 @@ resource mlHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview'
 }
 
 // In ai.azure.com: Azure AI Project
-resource mlProject 'Microsoft.MachineLearningServices/workspaces@2023-10-01' = {
+resource project 'Microsoft.MachineLearningServices/workspaces@2023-10-01' = {
   name: contosoChatSfAiprojName
   location: location
   sku: {
@@ -103,17 +103,18 @@ resource mlProject 'Microsoft.MachineLearningServices/workspaces@2023-10-01' = {
     publicNetworkAccess: 'Enabled'
     discoveryUrl: 'https://swedencentral.api.azureml.ms/discovery'
     // most properties are not allowed for a project workspace: "Project workspace shouldn't define ..."
-    hubResourceId: mlHub.id
+    hubResourceId: workspace.id
   }
 }
 
 resource openai 'Microsoft.CognitiveServices/accounts@2023-05-01' existing = {
-  name: openAIName
+  name: openAiName
 }
 
 resource search 'Microsoft.Search/searchServices@2021-04-01-preview' existing = {
   name: searchName
 }
 
-output ml_hub_name string = mlHub.name
-output ml_project_name string = mlProject.name
+output workspace_name string = workspace.name
+output project_name string = project.name
+output workspace_principal_id string = workspace.identity.principalId

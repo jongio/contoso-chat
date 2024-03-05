@@ -11,4 +11,4 @@ hooks:
     shell: sh
     continueOnError: false
     interactive: false
-    run: infra/hooks/prepenv.sh
+    run: infra/hooks/postprovision.sh
