@@ -10,5 +10,5 @@ hooks:
   postprovision:
     shell: sh
     continueOnError: false
-    interactive: false
+    interactive: true
     run: infra/hooks/postprovision.sh

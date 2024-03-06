@@ -1,7 +1,7 @@
-param appInsightId string
+param applicationInsightsId string
 param containerRegistryId string
 param contosoChatSfAiName string = 'contoso-chat-sf-ai'
-param contosoChatSfAiprojName string = 'contoso-chat-sf-aiproj'
+param contosoChatSfAiProjectName string = 'contoso-chat-sf-aiproj'
 param keyVaultId string
 param location string
 param openAiEndpoint string
@@ -25,7 +25,7 @@ resource workspace 'Microsoft.MachineLearningServices/workspaces@2023-08-01-prev
     friendlyName: contosoChatSfAiName
     storageAccount: storageAccountId
     keyVault: keyVaultId
-    applicationInsights: appInsightId
+    applicationInsights: applicationInsightsId
     hbiWorkspace: false
     managedNetwork: {
       isolationMode: 'Disabled'
@@ -86,7 +86,7 @@ resource workspace 'Microsoft.MachineLearningServices/workspaces@2023-08-01-prev
 
 // In ai.azure.com: Azure AI Project
 resource project 'Microsoft.MachineLearningServices/workspaces@2023-10-01' = {
-  name: contosoChatSfAiprojName
+  name: contosoChatSfAiProjectName 
   location: location
   sku: {
     name: 'Basic'
@@ -97,11 +97,11 @@ resource project 'Microsoft.MachineLearningServices/workspaces@2023-10-01' = {
     type: 'SystemAssigned'
   }
   properties: {
-    friendlyName: contosoChatSfAiprojName
+    friendlyName: contosoChatSfAiProjectName 
     hbiWorkspace: false
     v1LegacyMode: false
     publicNetworkAccess: 'Enabled'
-    discoveryUrl: 'https://swedencentral.api.azureml.ms/discovery'
+    discoveryUrl: 'https://${location}.api.azureml.ms/discovery'
     // most properties are not allowed for a project workspace: "Project workspace shouldn't define ..."
     hubResourceId: workspace.id
   }
@@ -115,6 +115,5 @@ resource search 'Microsoft.Search/searchServices@2021-04-01-preview' existing = 
   name: searchName
 }
 
-output workspace_name string = workspace.name
-output project_name string = project.name
-output workspace_principal_id string = workspace.identity.principalId
+output workspaceName string = workspace.name
+output projectName string = project.name

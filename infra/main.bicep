@@ -30,8 +30,8 @@ param workspacesApwsContosoChatSfAiName string = 'apws-contoso-chat-sf-ai'
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
 
-var openaiSubdomain = '${accountsContosoChatSfAiServicesName}${resourceToken}'
-var openaiEndpoint = 'https://${openaiSubdomain}.openai.azure.com/'
+var openAiSubdomain  = '${accountsContosoChatSfAiServicesName}${resourceToken}'
+var openAiEndpoint = 'https://${openAiSubdomain }.openai.azure.com/'
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 var tags = { 'azd-env-name': environmentName }
 
@@ -151,9 +151,9 @@ module machinelearning 'app/ml.bicep' = {
     location: location
     storageAccountId: storage.outputs.id
     keyVaultId: keyvault.outputs.id
-    appInsightId: monitoring.outputs.applicationInsightsId
+    applicationInsightsId: monitoring.outputs.applicationInsightsId
     containerRegistryId: containerRegistry.outputs.id
-    openAiEndpoint: openaiEndpoint
+    openAiEndpoint: openAiEndpoint
     openAiName: openai.outputs.name
     searchName: search.outputs.name
   }
@@ -179,7 +179,7 @@ module openai 'core/ai/cognitiveservices.bicep' = {
     location: location
     tags: tags
     kind: 'AIServices'
-    customSubDomainName: openaiSubdomain
+    customSubDomainName: openAiSubdomain
     deployments: [
       {
         name: 'gpt-35-turbo'
@@ -351,10 +351,10 @@ module storage 'core/storage/storage-account.bicep' = {
 output AZURE_OPENAI_NAME string = openai.outputs.name
 output AZURE_COSMOS_NAME string = cosmos.outputs.accountName
 output AZURE_SEARCH_NAME string = search.outputs.name
-output AZURE_WORKSPACE_NAME string = machinelearning.outputs.workspace_name
-output AZURE_PROJECT_NAME string = machinelearning.outputs.project_name
+output AZURE_WORKSPACE_NAME string = machinelearning.outputs.workspaceName
+output AZURE_PROJECT_NAME string = machinelearning.outputs.projectName
 
 output AZURE_RESOURCE_GROUP string = rg.name
-output CONTOSO_AI_SERVICES_ENDPOINT string = openaiEndpoint
+output CONTOSO_AI_SERVICES_ENDPOINT string = openAiEndpoint
 output COSMOS_ENDPOINT string = cosmos.outputs.endpoint
 output CONTOSO_SEARCH_ENDPOINT string = search.outputs.endpoint
