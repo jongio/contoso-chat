@@ -3,7 +3,6 @@ param name string
 param location string = resourceGroup().location
 param tags object = {}
 
-
 @description('Indicates whether admin user is enabled')
 param adminUserEnabled bool = false
 

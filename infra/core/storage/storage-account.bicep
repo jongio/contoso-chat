@@ -11,8 +11,8 @@ param accessTier string = 'Hot'
 param allowBlobPublicAccess bool = true
 param allowCrossTenantReplication bool = true
 param allowSharedKeyAccess bool = true
-param blobs array = []
 param containers array = []
+param corsRules array = []
 param defaultToOAuthAuthentication bool = false
 param deleteRetentionPolicy object = {}
 @allowed([ 'AzureDnsZone', 'Standard' ])
@@ -21,6 +21,7 @@ param files array = []
 param kind string = 'StorageV2'
 param minimumTlsVersion string = 'TLS1_2'
 param queues array = []
+param shareDeleteRetentionPolicy object = {}
 param supportsHttpsTrafficOnly bool = true
 param tables array = []
 param networkAcls object = {
@@ -31,7 +32,7 @@ param networkAcls object = {
 param publicNetworkAccess string = 'Enabled'
 param sku object = { name: 'Standard_LRS' }
 
-resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' = {
+resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: name
   location: location
   tags: tags
@@ -53,6 +54,9 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   resource blobServices 'blobServices' = if (!empty(containers)) {
     name: 'default'
     properties: {
+      cors: {
+        corsRules: corsRules
+      }
       deleteRetentionPolicy: deleteRetentionPolicy
     }
     resource container 'containers' = [for container in containers: {
@@ -63,27 +67,35 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' = {
     }]
   }
 
-  resource blob 'blobServices' = [for blob in blobs: {
-    name: blob.name
-    properties: blob.properties
-  }]
+  resource fileServices 'fileServices' = if (!empty(files)) {
+    name: 'default'
+    properties: {
+      cors: {
+        corsRules: corsRules
+      }
+      shareDeleteRetentionPolicy: shareDeleteRetentionPolicy
+    }
+  }
 
-  resource file 'fileServices' = [for file in files: {
-    name: file.name
-    properties: file.properties
-  }]
+  resource queueServices 'queueServices' = if (!empty(queues)) {
+    name: 'default'
+    properties: {
 
-  resource queue 'queueServices' = [for queue in queues: {
-    name: queue.name
-    properties: queue.properties
-  }]
+    }
+    resource queue 'queues' = [for queue in queues: {
+      name: queue.name
+      properties: {
+        metadata: {}
+      }
+    }]
+  }
 
-  resource table 'tableServices' = [for table in tables: {
-    name: table.name
-    properties: table.properties
-  }]
+  resource tableServices 'tableServices' = if (!empty(tables)) {
+    name: 'default'
+    properties: {}
+  }
 }
 
-output name string = storage.name
 output id string = storage.id
+output name string = storage.name
 output primaryEndpoints object = storage.properties.primaryEndpoints

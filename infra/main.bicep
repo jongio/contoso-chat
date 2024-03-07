@@ -246,113 +246,63 @@ module storage 'core/storage/storage-account.bicep' = {
   params: {
     name: !empty(storageServiceName) ? storageServiceName : 'stcontoso${resourceToken}'
     location: location
-    blobs: [
+    containers: [
       {
         name: 'default'
-        properties: {
-          cors: {
-            corsRules: [
-              {
-                allowedOrigins: [
-                  'https://mlworkspace.azure.ai'
-                  'https://ml.azure.com'
-                  'https://*.ml.azure.com'
-                  'https://ai.azure.com'
-                  'https://*.ai.azure.com'
-                  'https://mlworkspacecanary.azure.ai'
-                  'https://mlworkspace.azureml-test.net'
-                ]
-                allowedMethods: [
-                  'GET'
-                  'HEAD'
-                  'POST'
-                  'PUT'
-                  'DELETE'
-                  'OPTIONS'
-                  'PATCH'
-                ]
-                maxAgeInSeconds: 1800
-                exposedHeaders: [
-                  '*'
-                ]
-                allowedHeaders: [
-                  '*'
-                ]
-              }
-            ]
-          }
-          deleteRetentionPolicy: {
-            allowPermanentDelete: false
-            enabled: false
-          }
-        }
       }
     ]
     files: [
       {
         name: 'default'
-        properties: {
-          protocolSettings: {
-            smb: {}
-          }
-          cors: {
-            corsRules: [
-              {
-                allowedOrigins: [
-                  'https://mlworkspace.azure.ai'
-                  'https://ml.azure.com'
-                  'https://*.ml.azure.com'
-                  'https://ai.azure.com'
-                  'https://*.ai.azure.com'
-                  'https://mlworkspacecanary.azure.ai'
-                  'https://mlworkspace.azureml-test.net'
-                ]
-                allowedMethods: [
-                  'GET'
-                  'HEAD'
-                  'POST'
-                  'PUT'
-                  'DELETE'
-                  'OPTIONS'
-                  'PATCH'
-                ]
-                maxAgeInSeconds: 1800
-                exposedHeaders: [
-                  '*'
-                ]
-                allowedHeaders: [
-                  '*'
-                ]
-              }
-            ]
-          }
-          shareDeleteRetentionPolicy: {
-            enabled: true
-            days: 7
-          }
-        }
       }
     ]
     queues: [
       {
         name: 'default'
-        properties: {
-          cors: {
-            corsRules: []
-          }
-        }
       }
     ]
     tables: [
       {
         name: 'default'
-        properties: {
-          cors: {
-            corsRules: []
-          }
-        }
       }
     ]
+    corsRules: [
+      {
+        allowedOrigins: [
+          'https://mlworkspace.azure.ai'
+          'https://ml.azure.com'
+          'https://*.ml.azure.com'
+          'https://ai.azure.com'
+          'https://*.ai.azure.com'
+          'https://mlworkspacecanary.azure.ai'
+          'https://mlworkspace.azureml-test.net'
+        ]
+        allowedMethods: [
+          'GET'
+          'HEAD'
+          'POST'
+          'PUT'
+          'DELETE'
+          'OPTIONS'
+          'PATCH'
+        ]
+        maxAgeInSeconds: 1800
+        exposedHeaders: [
+          '*'
+        ]
+        allowedHeaders: [
+          '*'
+        ]
+      }
+    ]
+    deleteRetentionPolicy: {
+      allowPermanentDelete: false
+      enabled: false
+    }
+    shareDeleteRetentionPolicy: {
+      enabled: true
+      days: 7
+    }
   }
 }
 
