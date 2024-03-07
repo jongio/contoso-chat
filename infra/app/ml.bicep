@@ -36,7 +36,7 @@ resource workspace 'Microsoft.MachineLearningServices/workspaces@2023-08-01-prev
     discoveryUrl: 'https://${location}.api.azureml.ms/discovery'
   }
 
-  resource openaiDefaultEndpoint 'endpoints' = {
+  resource openAiDefaultEndpoint 'endpoints' = {
     name: 'Azure.OpenAI'
     properties: {
       name: 'Azure.OpenAI'
@@ -54,7 +54,7 @@ resource workspace 'Microsoft.MachineLearningServices/workspaces@2023-08-01-prev
     }
   }
 
-  resource openaiConnection 'connections' = {
+  resource openAiConnection 'connections' = {
     name: 'aoai-connection'
     properties: {
       category: 'AzureOpenAI'
@@ -79,6 +79,33 @@ resource workspace 'Microsoft.MachineLearningServices/workspaces@2023-08-01-prev
       authType: 'ApiKey'
       credentials: {
         key: search.listAdminKeys().primaryKey
+      }
+    }
+  }
+
+  resource env 'environments' = {
+    name: 'promptflow-contoso-chat'
+    properties: {
+      properties: {}
+      tags: {}
+    }
+    resource version 'versions' = {
+      name: 'version'
+      properties: {
+        osType: 'Linux'
+        isAnonymous: false
+        image: 'mcr.microsoft.com/azureml/promptflow/promptflow-runtime-stable:latest'
+        condaFile: '''
+        name: pfenv
+          - conda-forge
+        dependencies:
+          - python=3.9
+          - pip
+            - promptflow
+            - promptflow-tools
+            - azure-cosmos
+            - azure-search-documents==11.4.0'
+        '''
       }
     }
   }
@@ -117,3 +144,4 @@ resource search 'Microsoft.Search/searchServices@2021-04-01-preview' existing = 
 
 output workspaceName string = workspace.name
 output projectName string = project.name
+output principalId string = project.identity.principalId

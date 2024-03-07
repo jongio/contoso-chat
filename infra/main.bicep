@@ -144,7 +144,16 @@ module keyvault 'core/security/keyvault.bicep' = {
   }
 }
 
-module machinelearning 'app/ml.bicep' = {
+module keyVaultAccess 'core/security/keyvalut-access.bicep' = {
+  name: 'keyvault-access'
+  scope: rg
+  params: {
+    keyVaultName: keyvault.name
+    principalId: machineLearning.outputs.principalId
+  }
+}
+
+module machineLearning 'app/ml.bicep' = {
   name: 'machinelearning'
   scope: rg
   params: {
@@ -347,14 +356,76 @@ module storage 'core/storage/storage-account.bicep' = {
   }
 }
 
+module userAcrRolePush 'core/security/role.bicep' = {
+  name: 'user-acr-role-push'
+  scope: rg
+  params: {
+    principalId: principalId
+    roleDefinitionId: '8311e382-0749-4cb8-b61a-304f252e45ec'
+    principalType: 'User'
+  }
+}
+
+module userAcrRolePull 'core/security/role.bicep' = {
+  name: 'user-acr-role-pull'
+  scope: rg
+  params: {
+    principalId: principalId
+    roleDefinitionId: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+    principalType: 'User'
+  }
+}
+
+module userRoleDataScientist 'core/security/role.bicep' = {
+  name: 'user-role-data-scientist'
+  scope: rg
+  params: {
+    principalId: principalId
+    roleDefinitionId: 'f6c7c914-8db3-469d-8ca1-694a8f32e121'
+    principalType: 'User'
+  }
+}
+
+module userRoleSecretsReader 'core/security/role.bicep' = {
+  name: 'user-role-secrets-reader'
+  scope: rg
+  params: {
+    principalId: principalId
+    roleDefinitionId: 'ea01e6af-a1c1-4350-9563-ad00f8c72ec5'
+    principalType: 'User'
+  }
+}
+
+module mlServiceRoleDataScientist 'core/security/role.bicep' = {
+  name: 'ml-service-role-data-scientist'
+  scope: rg
+  params: {
+    principalId: machineLearning.outputs.principalId
+    roleDefinitionId: 'f6c7c914-8db3-469d-8ca1-694a8f32e121'
+    principalType: 'ServicePrincipal'
+  }
+}
+
+module mlServiceRoleSecretsReader 'core/security/role.bicep' = {
+  name: 'ml-service-role-secrets-reader'
+  scope: rg
+  params: {
+    principalId: machineLearning.outputs.principalId
+    roleDefinitionId: 'ea01e6af-a1c1-4350-9563-ad00f8c72ec5'
+    principalType: 'ServicePrincipal'
+  }
+}
+
 // output the names of the resources
 output AZURE_OPENAI_NAME string = openai.outputs.name
 output AZURE_COSMOS_NAME string = cosmos.outputs.accountName
 output AZURE_SEARCH_NAME string = search.outputs.name
-output AZURE_WORKSPACE_NAME string = machinelearning.outputs.workspaceName
-output AZURE_PROJECT_NAME string = machinelearning.outputs.projectName
+output AZURE_WORKSPACE_NAME string = machineLearning.outputs.workspaceName
+output AZURE_MLPROJECT_NAME string = machineLearning.outputs.projectName
 
 output AZURE_RESOURCE_GROUP string = rg.name
 output CONTOSO_AI_SERVICES_ENDPOINT string = openAiEndpoint
 output COSMOS_ENDPOINT string = cosmos.outputs.endpoint
 output CONTOSO_SEARCH_ENDPOINT string = search.outputs.endpoint
+output AZURE_CONTAINER_REGISTRY_NAME string = containerRegistry.outputs.name
+output AZURE_KEY_VAULT_NAME string = keyvault.outputs.name
